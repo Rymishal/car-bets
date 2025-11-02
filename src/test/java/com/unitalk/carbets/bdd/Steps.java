@@ -1,6 +1,5 @@
 package com.unitalk.carbets.bdd;
 
-import com.unitalk.carbets.BetController;
 import com.unitalk.carbets.BetService;
 import com.unitalk.carbets.CarBet;
 import io.cucumber.datatable.DataTable;
@@ -23,9 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class Steps {
-
-    @Autowired
-    private BetController betController;
 
     @Autowired
     private BetService betService;
@@ -66,7 +62,7 @@ public class Steps {
     @When("user retrieves bet for car: {string}")
     public void retrieveBetForCar(String car) {
         ResponseEntity<Set<CarBet>> responseEntity = restTemplate.exchange(url + "/" + car, HttpMethod.GET, null,
-                new ParameterizedTypeReference<Set<CarBet>>() {
+                new ParameterizedTypeReference<>() {
                 });
         getByCarResponses.add(responseEntity.getBody());
     }
@@ -74,7 +70,7 @@ public class Steps {
     @When("user retrieves all bets")
     public void retrieveAll() {
         ResponseEntity<Set<CarBet>> responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
-                new ParameterizedTypeReference<Set<CarBet>>() {
+                new ParameterizedTypeReference<>() {
                 });
         getAllResponse = responseEntity.getBody();
     }
