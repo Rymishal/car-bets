@@ -1,6 +1,5 @@
 package com.unitalk.carbets;
 
-import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,7 @@ public class BetService {
 
     public String add(CarBet carBet) {
         String error = validate(carBet);
-        if (StringUtils.isEmpty(error)) {
+        if (error.isEmpty()) {
             String carName = CarBrand.get(carBet.car());
             lock.writeLock().lock();
             try {
@@ -39,11 +38,11 @@ public class BetService {
 
     private String validate(CarBet carBet) {
         String error = "";
-        if (carBet.car() == null) {
+        if (carBet.car() == null || carBet.car().isEmpty()) {
             error += "Car is absent in the request. Please add a car to request body\n";
         } else if (!CarBrand.contains(carBet.car())) {
             error += "Unfortunately there is no car: " + carBet.car() + " in our list.\n" +
-                    "Please choose one of the following: " + Arrays.toString(CarBrand.values());
+                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n";
         }
         if (carBet.amount() == null) {
             error += "Bet amount is absent in the request. Please add a bet to request body\n";
@@ -75,7 +74,7 @@ public class BetService {
     }
 
     private Set<CarBet> getAbsent(String car) {
-        return Set.of(new CarBet("Unfortunately there is no car: " + car + " in our list." +
-                "Please choose one of the following: " + Arrays.toString(CarBrand.values()), null));
+        return Set.of(new CarBet("Unfortunately there is no car: " + car + " in our list.\n" +
+                "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n", null));
     }
 }

@@ -76,7 +76,7 @@ class BetServiceTest {
         CarBet bet = new CarBet("Bentley", 1000);
         String result = betService.add(bet);
         assertEquals("Unfortunately there is no car: " + bet.car() + " in our list.\n" +
-                        "Please choose one of the following: " + Arrays.toString(CarBrand.values()),
+                        "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n",
                 result);
     }
 
@@ -137,8 +137,8 @@ class BetServiceTest {
 
         assertEquals(1, result.size());
         for (CarBet bet : result) {
-            assertEquals("Unfortunately there is no car: Bentley in our list." +
-                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()), bet.car());
+            assertEquals("Unfortunately there is no car: Bentley in our list.\n" +
+                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n", bet.car());
             assertNull(bet.amount());
         }
     }
@@ -155,10 +155,11 @@ class BetServiceTest {
                 new CarBet("Hummer", 1000));
 
         assertEquals(3, result.size());
-        for (CarBet bet : result) {
-            assertTrue(expected.stream()
+        for (CarBet bet : expected) {
+            assertTrue(result.stream()
                     .anyMatch(b -> b.car().equals(bet.car())
-                            && b.amount().equals(bet.amount())));
+                            && b.amount().equals(bet.amount())), () -> "Expected bet " + bet.amount() + " for car " + bet.car() +
+                    " But result set contains: \n" + result);
         }
     }
 
