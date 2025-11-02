@@ -1,36 +1,63 @@
 package com.unitalk.carbets;
 
+import io.micrometer.common.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class BetService {
 
     private final Map<String, Integer> bets = new ConcurrentHashMap<>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public String add(CarBet carBet) {
-        if(carBet.car() == null) {
-            return "Car is absent. Please add a car to request body";
-        } else if (carBet.bet() == null) {
-            return "Bet is absent. Please add a bet to request body";
-        } else if (carBet.bet() <= 0) {
-            return "Bet value must be positive integer";
+        String error = validate(carBet);
+        if (StringUtils.isEmpty(error)) {
+            String carName = CarBrand.get(carBet.car());
+            lock.writeLock().lock();
+            try {
+                bets.merge(carName, carBet.amount(), Integer::sum);
+            } finally {
+                lock.writeLock().unlock();
+            }
+            return "A bet of " + carBet.amount() +
+                    "$ has been added to the " + carName + " car bets. Current bet sum:" +
+                    bets.get(carName) + "$";
         } else {
-            bets.merge(carBet.car(), carBet.bet(), Integer::sum);
-            return "A bet of " + carBet.bet() +
-                    "$ has been added to the " + carBet.car() + " car bets. Current bet sum:" +
-                    bets.get(carBet.car()) + "$";
+            return error;
         }
     }
 
+    private String validate(CarBet carBet) {
+        String error = "";
+        if (carBet.car() == null) {
+            error += "Car is absent in the request. Please add a car to request body\n";
+        } else if (!CarBrand.contains(carBet.car())) {
+            error += "Unfortunately there is no car: " + carBet.car() + " in our list.\n" +
+                    "Please choose one of the following: " + Arrays.toString(CarBrand.values());
+        }
+        if (carBet.amount() == null) {
+            error += "Bet amount is absent in the request. Please add a bet to request body\n";
+        } else if (carBet.amount() <= 0) {
+            error += "Bet amount value must be positive integer\n";
+        }
+        return error;
+    }
+
     public Set<CarBet> get(String car) {
-        if(car == null) {
+        if (car == null) {
             return getAll();
-        } else if (bets.containsKey(car)) {
+        } else if (CarBrand.contains(car)) {
+            car = CarBrand.get(car);
             return getByCar(car);
         } else {
             return getAbsent(car);
@@ -44,10 +71,11 @@ public class BetService {
     }
 
     private Set<CarBet> getByCar(String car) {
-        return Set.of(new CarBet(car, bets.get(car)));
+        return Set.of(new CarBet(car, bets.getOrDefault(car, 0)));
     }
 
     private Set<CarBet> getAbsent(String car) {
-        return Set.of(new CarBet("There is no car: " + car, null));
+        return Set.of(new CarBet("Unfortunately there is no car: " + car + " in our list." +
+                "Please choose one of the following: " + Arrays.toString(CarBrand.values()), null));
     }
 }
