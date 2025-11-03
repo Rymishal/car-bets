@@ -3,6 +3,7 @@ package com.unitalk.carbets;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -18,7 +19,7 @@ public class BetController {
     }
 
     @GetMapping(value = {"/{car}", ""})
-    public Set<CarBet> get(@PathVariable(required = false) String car) {
+    public List<CarBet> get(@PathVariable(required = false) String car) {
         return betService.get(car);
     }
 }

@@ -24,16 +24,19 @@ public class BetService {
     public String add(CarBet carBet) {
         String error = validate(carBet);
         if (error.isEmpty()) {
-            String carName = CarBrand.get(carBet.getCar());
+            CarBet bet;
+            String carName;
             lock.writeLock().lock();
             try {
-                bets.stream().findFirst()(carName, carBet.getAmount(), Integer::sum);
+                bet = bets.stream().filter(e -> e.getCar().equalsIgnoreCase(carBet.getCar())).findFirst().get();
+                carName = bet.getCar();
+                bet.setAmount(bet.getAmount() + carBet.getAmount());
             } finally {
                 lock.writeLock().unlock();
             }
             return "A bet of " + carBet.getAmount() +
                     "$ has been added to the " + carName + " car bets. Current bet sum:" +
-                    bets.get(carName) + "$";
+                    bet.getAmount() + "$";
         } else {
             return error;
         }
@@ -43,7 +46,7 @@ public class BetService {
         String error = "";
         if (carBet.getCar() == null || carBet.getCar().isEmpty()) {
             error += "Car is absent in the request. Please add a car to request body\n";
-        } else if (bets.stream().anyMatch(e -> e.getCar().equalsIgnoreCase(carBet.getCar()))) {
+        } else if (bets.stream().noneMatch(e -> e.getCar().equalsIgnoreCase(carBet.getCar()))) {
             error += "Unfortunately there is no car: " + carBet.getCar() + " in our list.\n" +
                     "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n";
         }
@@ -55,29 +58,24 @@ public class BetService {
         return error;
     }
 
-    public Set<CarBet> get(String car) {
+    public List<CarBet> get(String car) {
         if (car == null) {
             return getAll();
-        } else if (CarBrand.contains(car)) {
-            car = CarBrand.get(car);
-            return getByCar(car);
         } else {
-            return getAbsent(car);
+            return getByCar(car);
         }
     }
 
-    private Set<CarBet> getAll() {
-        return bets.entrySet().stream()
-                .map(entry -> new CarBet(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toSet());
+    private List<CarBet> getAll() {
+        return bets;
     }
 
-    private Set<CarBet> getByCar(String car) {
-        return Set.of(new CarBet(car, bets.getOrDefault(car, 0)));
-    }
-
-    private Set<CarBet> getAbsent(String car) {
-        return Set.of(new CarBet("Unfortunately there is no car: " + car + " in our list.\n" +
-                "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n", null));
+    private List<CarBet> getByCar(String car) {
+        List<CarBet> result = new ArrayList<>(bets.stream().filter(e -> e.getCar().equalsIgnoreCase(car)).toList());
+        if (result.isEmpty()) {
+            result.add(new CarBet("Unfortunately there is no car: Bentley in our list.\n" +
+                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n", null));
+        }
+        return result;
     }
 }

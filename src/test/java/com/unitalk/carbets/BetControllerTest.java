@@ -10,6 +10,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,8 +67,8 @@ class BetControllerTest {
     public void shouldGetBet() throws Exception {
         CarBet bet = new CarBet("Audi", 100);
         when(betService.get(eq("Audi")))
-                .thenReturn(Set.of(bet));
-        Set<CarBet> result = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders.get(url + "/Audi"))
+                .thenReturn(List.of(bet));
+        List<CarBet> result = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders.get(url + "/Audi"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsByteArray(), new TypeReference<>() {
         });
@@ -80,24 +81,23 @@ class BetControllerTest {
 
     @Test
     public void shouldGetAllBets() throws Exception {
-        Set<CarBet> bets = Set.of(new CarBet("Audi", 100),
+        List<CarBet> bets = List.of(new CarBet("Audi", 100),
                 new CarBet("BMW", 200),
                 new CarBet("Hummer", 300));
         when(betService.get(null))
                 .thenReturn(bets);
-        Set<CarBet> result = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders.get(url)).andExpect(status().isOk())
+        List<CarBet> result = objectMapper.readValue(mockMvc.perform(MockMvcRequestBuilders.get(url)).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsByteArray(), new TypeReference<>() {
         });
 
-        Set<CarBet> expected = Set.of(new CarBet("Audi", 100),
+        List<CarBet> expected = List.of(new CarBet("Audi", 100),
                 new CarBet("BMW", 200),
                 new CarBet("Hummer", 300));
 
         assertEquals(3, result.size());
-        for (CarBet bet : result) {
-            assertTrue(expected.stream()
-                    .anyMatch(b -> b.getCar().equals(bet.getCar())
-                            && b.getAmount().equals(bet.getAmount())));
+        for (int i = 0; i < result.size(); i++) {
+            assertEquals(expected.get(i).getCar(), result.get(i).getCar());
+            assertEquals(expected.get(i).getAmount(), result.get(i).getAmount());
         }
     }
 
