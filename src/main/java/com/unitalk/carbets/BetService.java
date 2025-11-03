@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class BetService {
 
-    private final Map<String, Integer> bets = new ConcurrentHashMap<>();
+    private final Map<String, Integer> bets = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public String add(CarBet carBet) {

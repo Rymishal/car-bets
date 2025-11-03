@@ -164,7 +164,7 @@ class BetServiceTest {
     }
 
     @Test
-    void testConcurrentBetPlacement() throws InterruptedException {
+    void shouldAddBetsConcurrently() throws InterruptedException {
         int threads = 50;
         int betsPerThread = 1000;
         int expectedBetsPerCar = betsPerThread * threads / CarBrand.values().length;
