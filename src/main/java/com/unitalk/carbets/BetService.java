@@ -1,13 +1,11 @@
 package com.unitalk.carbets;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-@Slf4j
 @Service
 public class BetService {
 
