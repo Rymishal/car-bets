@@ -49,16 +49,16 @@ class BetServiceTest {
     }
 
     @Test
-    public void shouldAddBetToExistingCar() {
+    public void shouldAddBetToExistinggetCar() {
         List<CarBet> bets = List.of(new CarBet("Hummer", 1000),
                 new CarBet("Hummer", 1200));
         int totalBet = 0;
         String result = "";
         for (CarBet bet : bets) {
-            totalBet += bet.amount();
+            totalBet += bet.getAmount();
             result = betService.add(bet);
         }
-        assertEquals("A bet of " + bets.getLast().amount() + "$ has been added to the Hummer car bets. Current bet sum:"
+        assertEquals("A bet of " + bets.getLast().getAmount() + "$ has been added to the Hummer car bets. Current bet sum:"
                         + totalBet + "$",
                 result);
     }
@@ -75,7 +75,7 @@ class BetServiceTest {
     public void shouldReturnNotInListCarError() {
         CarBet bet = new CarBet("Bentley", 1000);
         String result = betService.add(bet);
-        assertEquals("Unfortunately there is no car: " + bet.car() + " in our list.\n" +
+        assertEquals("Unfortunately there is no car: " + bet.getCar() + " in our list.\n" +
                         "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n",
                 result);
     }
@@ -103,8 +103,8 @@ class BetServiceTest {
 
         assertEquals(1, result.size());
         for (CarBet bet : result) {
-            assertEquals("Hummer", bet.car());
-            assertEquals(100, bet.amount());
+            assertEquals("Hummer", bet.getCar());
+            assertEquals(100, bet.getAmount());
         }
     }
 
@@ -115,8 +115,8 @@ class BetServiceTest {
 
         assertEquals(1, result.size());
         for (CarBet bet : result) {
-            assertEquals("Audi", bet.car());
-            assertEquals(100, bet.amount());
+            assertEquals("Audi", bet.getCar());
+            assertEquals(100, bet.getAmount());
         }
     }
 
@@ -126,8 +126,8 @@ class BetServiceTest {
 
         assertEquals(1, result.size());
         for (CarBet bet : result) {
-            assertEquals("Hummer", bet.car());
-            assertEquals(0, bet.amount());
+            assertEquals("Hummer", bet.getCar());
+            assertEquals(0, bet.getAmount());
         }
     }
 
@@ -138,8 +138,8 @@ class BetServiceTest {
         assertEquals(1, result.size());
         for (CarBet bet : result) {
             assertEquals("Unfortunately there is no car: Bentley in our list.\n" +
-                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n", bet.car());
-            assertNull(bet.amount());
+                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n", bet.getCar());
+            assertNull(bet.getAmount());
         }
     }
 
@@ -157,8 +157,8 @@ class BetServiceTest {
         assertEquals(3, result.size());
         for (CarBet bet : expected) {
             assertTrue(result.stream()
-                    .anyMatch(b -> b.car().equals(bet.car())
-                            && b.amount().equals(bet.amount())), () -> "Expected bet " + bet.amount() + " for car " + bet.car() +
+                    .anyMatch(b -> b.getCar().equals(bet.getCar())
+                            && b.getAmount().equals(bet.getAmount())), () -> "Expected bet " + bet.getAmount() + " for car " + bet.getCar() +
                     " But result set contains: \n" + result);
         }
     }
@@ -196,7 +196,7 @@ class BetServiceTest {
         Set<CarBet> result = betService.get(null);
         assertEquals(5, result.size());
         for (CarBet bet : result) {
-            assertEquals(expectedBetsPerCar, bet.amount());
+            assertEquals(expectedBetsPerCar, bet.getAmount());
         }
     }
 }

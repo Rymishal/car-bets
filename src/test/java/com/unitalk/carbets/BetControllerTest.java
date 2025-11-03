@@ -73,8 +73,8 @@ class BetControllerTest {
         });
         assertEquals(1, result.size());
         for (CarBet resultBet : result) {
-            assertEquals("Audi", resultBet.car());
-            assertEquals(100, resultBet.amount());
+            assertEquals("Audi", resultBet.getCar());
+            assertEquals(100, resultBet.getAmount());
         }
     }
 
@@ -96,8 +96,8 @@ class BetControllerTest {
         assertEquals(3, result.size());
         for (CarBet bet : result) {
             assertTrue(expected.stream()
-                    .anyMatch(b -> b.car().equals(bet.car())
-                            && b.amount().equals(bet.amount())));
+                    .anyMatch(b -> b.getCar().equals(bet.getCar())
+                            && b.getAmount().equals(bet.getAmount())));
         }
     }
 

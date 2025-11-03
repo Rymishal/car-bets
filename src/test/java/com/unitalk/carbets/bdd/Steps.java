@@ -99,10 +99,10 @@ public class Steps {
         for (int i = 0; i < expectedBets.size(); ++i) {
             int finalI = i;
             assertTrue(getByCarResponses.get(i).stream()
-                            .anyMatch(resp -> resp.car().equals(expectedBets.get(finalI).car())
-                                    && (resp.amount() == null && expectedBets.get(finalI).amount() == null
-                                    || resp.amount().equals(expectedBets.get(finalI).amount()))),
-                    () -> "Expected bet " + expectedBets.get(finalI).amount() + " for car " + expectedBets.get(finalI).car() +
+                            .anyMatch(resp -> resp.getCar().equals(expectedBets.get(finalI).getCar())
+                                    && (resp.getAmount() == null && expectedBets.get(finalI).getAmount() == null
+                                    || resp.getAmount().equals(expectedBets.get(finalI).getAmount()))),
+                    () -> "Expected bet " + expectedBets.get(finalI).getAmount() + " for car " + expectedBets.get(finalI).getCar() +
                             " But result set contains: \n" + getByCarResponses.get(finalI));
         }
     }
@@ -122,9 +122,9 @@ public class Steps {
 
         for (CarBet bet : expectedBets) {
             assertTrue(getAllResponse.stream()
-                            .anyMatch(resp -> resp.car().equals(bet.car())
-                                    && (resp.amount().equals(bet.amount()))),
-                    () -> "Expected bet " + bet.amount() + " for car " + bet.car() +
+                            .anyMatch(resp -> resp.getCar().equals(bet.getCar())
+                                    && (resp.getAmount().equals(bet.getAmount()))),
+                    () -> "Expected bet " + bet.getAmount() + " for car " + bet.getCar() +
                             " But result set contains: \n" + getAllResponse);
         }
     }
