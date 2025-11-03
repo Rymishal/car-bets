@@ -2,32 +2,21 @@ package com.unitalk.carbets;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
-//@ExtendWith(MockitoExtension.class)
 class BetServiceTest {
 
-//    @Spy
     private final List<CarBet> bets = List.of(
             new CarBet("Hummer", 100),
             new CarBet("Ferrari", 0),
             new CarBet("BMW", 0),
             new CarBet("Audi", 0),
             new CarBet("Honda", 0)
-    );;
+    );
 
     private final BetService betService = new BetService();
 
@@ -68,7 +57,7 @@ class BetServiceTest {
         CarBet bet = new CarBet("Bentley", 1000);
         String result = betService.add(bet);
         assertEquals("Unfortunately there is no car: " + bet.getCar() + " in our list.\n" +
-                        "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n",
+                        "Please choose one of the following: " + Arrays.toString(bets.stream().map(CarBet::getCar).toArray()) + "\n",
                 result);
     }
 
@@ -117,7 +106,8 @@ class BetServiceTest {
         assertEquals(1, result.size());
         for (CarBet bet : result) {
             assertEquals("Unfortunately there is no car: Bentley in our list.\n" +
-                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n", bet.getCar());
+                    "Please choose one of the following: " + Arrays.toString(bets.stream().map(CarBet::getCar).toArray()) + "\n",
+                    bet.getCar());
             assertNull(bet.getAmount());
         }
     }

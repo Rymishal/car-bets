@@ -25,13 +25,20 @@ class CarBetsApplicationTests {
     public void shouldAddBetsConcurrently() throws InterruptedException {
         int threads = 50;
         int betsPerThread = 1000;
-        int expectedBetsPerCar = betsPerThread * threads / CarBrand.values().length;
+        List<CarBet> bets = List.of(
+                new CarBet("Hummer", 0),
+                new CarBet("Ferrari", 0),
+                new CarBet("BMW", 0),
+                new CarBet("Audi", 0),
+                new CarBet("Honda", 0)
+        );
+        int expectedBetsPerCar = betsPerThread * threads / bets.size();
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(threads);
 
         for (int i = 0; i < threads; ++i) {
-            String car = CarBrand.values()[i % CarBrand.values().length].name();
+            String car = bets.get(i % bets.size()).getCar();
             executor.submit(() -> {
                 try {
                     startLatch.await();

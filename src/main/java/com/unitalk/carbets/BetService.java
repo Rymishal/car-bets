@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -48,7 +47,7 @@ public class BetService {
             error += "Car is absent in the request. Please add a car to request body\n";
         } else if (bets.stream().noneMatch(e -> e.getCar().equalsIgnoreCase(carBet.getCar()))) {
             error += "Unfortunately there is no car: " + carBet.getCar() + " in our list.\n" +
-                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n";
+                    "Please choose one of the following: " + Arrays.toString(bets.stream().map(CarBet::getCar).toArray()) + "\n";
         }
         if (carBet.getAmount() == null) {
             error += "Bet amount is absent in the request. Please add a bet to request body\n";
@@ -60,21 +59,18 @@ public class BetService {
 
     public List<CarBet> get(String car) {
         if (car == null) {
-            return getAll();
+            return bets;
         } else {
             return getByCar(car);
         }
     }
 
-    private List<CarBet> getAll() {
-        return bets;
-    }
-
     private List<CarBet> getByCar(String car) {
         List<CarBet> result = new ArrayList<>(bets.stream().filter(e -> e.getCar().equalsIgnoreCase(car)).toList());
         if (result.isEmpty()) {
-            result.add(new CarBet("Unfortunately there is no car: Bentley in our list.\n" +
-                    "Please choose one of the following: " + Arrays.toString(CarBrand.values()) + "\n", null));
+            result.add(new CarBet("Unfortunately there is no car: " + car + " in our list.\n" +
+                    "Please choose one of the following: " + Arrays.toString(bets.stream().map(CarBet::getCar).toArray()) + "\n",
+                    null));
         }
         return result;
     }

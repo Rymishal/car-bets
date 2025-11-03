@@ -32,17 +32,18 @@ public class Steps {
     private final String url = "/api/bet";
 
     private final List<String> addResponses = new ArrayList<>();
-    private final List<Set<CarBet>> getByCarResponses = new ArrayList<>();
-    private Set<CarBet> getAllResponse;
+    private final List<List<CarBet>> getByCarResponses = new ArrayList<>();
+    private List<CarBet> getAllResponse;
 
-    @Given("bets exists")
-    public void betsExist(DataTable dataTable) throws NoSuchFieldException, IllegalAccessException {
-        List<List<String>> lists = dataTable.asLists();
-        Map<String, Integer> bets = new HashMap<>();
-        for (int i = 1; i < lists.size(); i++) {
-            List<String> list = lists.get(i);
-            bets.put(list.getFirst(), Integer.valueOf(list.getLast()));
-        }
+    @Given("no bets exists")
+    public void noBetsExist() throws NoSuchFieldException, IllegalAccessException {
+        List<CarBet> bets = List.of(
+                new CarBet("Hummer", 0),
+                new CarBet("Ferrari", 0),
+                new CarBet("BMW", 0),
+                new CarBet("Audi", 0),
+                new CarBet("Honda", 0)
+        );
 
         Field field = BetService.class.getDeclaredField("bets");
         field.setAccessible(true);
@@ -61,7 +62,7 @@ public class Steps {
 
     @When("user retrieves bet for car: {string}")
     public void retrieveBetForCar(String car) {
-        ResponseEntity<Set<CarBet>> responseEntity = restTemplate.exchange(url + "/" + car, HttpMethod.GET, null,
+        ResponseEntity<List<CarBet>> responseEntity = restTemplate.exchange(url + "/" + car, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 });
         getByCarResponses.add(responseEntity.getBody());
@@ -69,7 +70,7 @@ public class Steps {
 
     @When("user retrieves all bets")
     public void retrieveAll() {
-        ResponseEntity<Set<CarBet>> responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
+        ResponseEntity<List<CarBet>> responseEntity = restTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>() {
                 });
         getAllResponse = responseEntity.getBody();
@@ -79,7 +80,8 @@ public class Steps {
     public void createdResultsShouldBeGot(List<String> expectedResponses) {
         assertEquals(expectedResponses.size(), addResponses.size());
         for (int i = 0; i < expectedResponses.size(); i++) {
-            assertTrue(addResponses.get(i).contains(expectedResponses.get(i)));
+            System.out.println(addResponses.get(i));
+            assertEquals(expectedResponses.get(i), addResponses.get(i));
         }
     }
 
@@ -87,23 +89,17 @@ public class Steps {
     public void shouldBeGotByNames(DataTable dataTable) {
         List<List<String>> lists = dataTable.asLists();
         List<CarBet> expectedBets = new ArrayList<>();
-        for (int i = 1; i < lists.size(); i++) {
-            List<String> list = lists.get(i);
-            String amount = list.getLast();
-            expectedBets.add(new CarBet(list.getFirst(),
-                    amount != null ? Integer.valueOf(amount) : null));
+        for (int i = 1; i < lists.size(); ++i) {
+            String amount = lists.get(i).getLast();
+            expectedBets.add(new CarBet(lists.get(i).getFirst(), amount != null ? Integer.valueOf(amount) : null));
         }
 
         assertEquals(expectedBets.size(), getByCarResponses.size());
 
-        for (int i = 0; i < expectedBets.size(); ++i) {
-            int finalI = i;
-            assertTrue(getByCarResponses.get(i).stream()
-                            .anyMatch(resp -> resp.getCar().equals(expectedBets.get(finalI).getCar())
-                                    && (resp.getAmount() == null && expectedBets.get(finalI).getAmount() == null
-                                    || resp.getAmount().equals(expectedBets.get(finalI).getAmount()))),
-                    () -> "Expected bet " + expectedBets.get(finalI).getAmount() + " for car " + expectedBets.get(finalI).getCar() +
-                            " But result set contains: \n" + getByCarResponses.get(finalI));
+        for (int i = 0; i < expectedBets.size(); i++) {
+            System.out.println(getByCarResponses.get(i));
+            assertEquals(expectedBets.get(i).getCar(), getByCarResponses.get(i).getFirst().getCar());
+            assertEquals(expectedBets.get(i).getAmount(), getByCarResponses.get(i).getFirst().getAmount());
         }
     }
 
@@ -120,12 +116,9 @@ public class Steps {
 
         assertEquals(expectedBets.size(), getAllResponse.size());
 
-        for (CarBet bet : expectedBets) {
-            assertTrue(getAllResponse.stream()
-                            .anyMatch(resp -> resp.getCar().equals(bet.getCar())
-                                    && (resp.getAmount().equals(bet.getAmount()))),
-                    () -> "Expected bet " + bet.getAmount() + " for car " + bet.getCar() +
-                            " But result set contains: \n" + getAllResponse);
+        for (int i = 0; i < expectedBets.size(); i++) {
+            assertEquals(expectedBets.get(i).getCar(), getAllResponse.get(i).getCar());
+            assertEquals(expectedBets.get(i).getAmount(), getAllResponse.get(i).getAmount());
         }
     }
 }
